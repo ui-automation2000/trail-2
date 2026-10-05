@@ -1,0 +1,49 @@
+name: Auto Update and Commit
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+# Grant the permissions required to push commits back to the repository
+permissions:
+  contents: write
+
+jobs:
+  update-file:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+        with:
+          # Fetches all history so Git can properly track and push changes
+          fetch-depth: 0 
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # Example step: Modifies a file. Replace this with your actual update command (e.g., npm version patch)
+      - name: Make a reasonable update to a file
+        run: |
+          echo "Last build: $(date)" > build-info.txt
+
+      # Configures Git, stages the changes, and pushes to the current branch
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@://github.com"
+          
+          # Stage the specific file(s) that changed
+          git add build-info.txt
+          
+          # Only commit and push if there are actual changes to prevent workflow errors
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: automated file update [skip ci]"
+            git push
+          else
+            echo "No changes to commit"
+          fi
