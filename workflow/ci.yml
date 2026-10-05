@@ -1,0 +1,38 @@
+# The name of the workflow as it appears in the GitHub Actions tab
+name: Node.js Continuous Integration
+
+# Defines the events that trigger the workflow
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs
+jobs:
+  build-and-test:
+    # The type of virtual machine runner the job will run on
+    runs-on: ubuntu-latest
+
+    # A sequence of tasks to execute as part of the job
+    steps:
+      # Step 1: Check out the repository's source code onto the runner
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      # Step 2: Set up the specific Node.js version
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm' # Automatically caches dependencies for faster subsequent runs
+
+      # Step 3: Install dependencies using clean install
+      - name: Install dependencies
+        run: npm ci
+
+      # Step 4: Run the test suite
+      - name: Run tests
+        run: npm test
